@@ -10,24 +10,24 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>backend-src</artifactId>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>backend-src</artifactId>
+    <groupId>org.eclipse.sw360</groupId>
+    <version>${revision}</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <dependencies>
+    <dependency>
         <groupId>org.eclipse.sw360</groupId>
-        <version>${revision}</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+        <artifactId>src-common</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
-    <artifactId>src-projects</artifactId>
-    <packaging>jar</packaging>
-    <name>src-projects</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.eclipse.sw360</groupId>
-            <artifactId>src-attachments</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+  <artifactId>src-projects</artifactId>
+  <packaging>jar</packaging>
+  <name>src-projects</name>
 </project>

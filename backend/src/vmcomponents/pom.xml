@@ -27,18 +27,25 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.sw360</groupId>
+            <artifactId>src-common</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sw360</groupId>
             <artifactId>src-vulnerabilities</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>1.58</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
         </dependency>
     </dependencies>
 </project>

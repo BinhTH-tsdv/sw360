@@ -20,4 +20,12 @@
     <artifactId>src-search</artifactId>
     <packaging>jar</packaging>
     <name>src-search</name>
+
+    <dependencies>
+    <dependency>
+        <groupId>org.eclipse.sw360</groupId>
+        <artifactId>src-projects</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    </dependencies>
 </project>

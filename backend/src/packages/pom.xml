@@ -22,4 +22,17 @@
     <artifactId>src-packages</artifactId>
     <packaging>jar</packaging>
     <name>src-packages</name>
+
+    <dependencies>
+      <dependency>
+        <groupId>org.eclipse.sw360</groupId>
+        <artifactId>src-common</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.sw360</groupId>
+        <artifactId>src-components</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    </dependencies>
 </project>

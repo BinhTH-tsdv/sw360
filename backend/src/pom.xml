@@ -12,8 +12,9 @@
   ~ SPDX-License-Identifier: EPL-2.0
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -26,36 +27,32 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>src-licenses</module>
-        <module>src-users</module>
-        <module>src-vendors</module>
-        <module>src-search</module>
-        <module>src-components</module>
-        <module>src-projects</module>
-        <module>src-attachments</module>
-        <module>src-moderation</module>
-        <module>src-fossology</module>
-        <module>src-vulnerabilities</module>
-        <module>src-vmcomponents</module>
-        <module>src-licenseinfo</module>
-        <module>src-cvesearch</module>
-        <module>src-schedule</module>
-        <module>src-wsimport</module>
-        <module>src-changelogs</module>
-        <module>src-health</module>
-        <module>src-spdxdocument</module>
-        <module>src-spdxdocumentcreationinfo</module>
-        <module>src-spdxpackageinfo</module>
-        <module>src-packages</module>
+        <module>attachments</module>
+        <module>changelogs</module>
+        <module>common</module>
+        <module>components</module>
+        <module>cvesearch</module>
+        <module>fossology</module>
+        <module>health</module>
+        <module>licenseinfo</module>
+        <module>licenses</module>
+        <module>moderation</module>
+        <module>packages</module>
+        <module>projects</module>
+        <module>schedule</module>
+        <module>search</module>
+        <module>spdxdocument</module>
+        <module>spdxdocumentcreationinfo</module>
+        <module>spdxpackageinfo</module>
+        <module>users</module>
+        <module>vendors</module>
+        <!--
+            TODO: We need fix this for the Java17 Refactor
+        <module>vmcomponents</module>
+        -->
+        <module>vulnerabilities</module>
+        <module>wsimport</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.eclipse.sw360</groupId>
-            <artifactId>src-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
