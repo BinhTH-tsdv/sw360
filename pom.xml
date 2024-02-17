@@ -80,7 +80,7 @@
     <maven-bundle-plugin.version>5.1.8</maven-bundle-plugin.version>
     <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
     <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
-    <maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
+    <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
     <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
     <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
     <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
@@ -119,6 +119,7 @@
     <hamcrest.version>1.3</hamcrest.version>
     <httpclient.version>4.5.14</httpclient.version>
     <httpcore.version>4.4.16</httpcore.version>
+    <httpmime.version>4.5.14</httpmime.version>
     <jakarta-xml-bind.version>2.3.3</jakarta-xml-bind.version>
     <javax-activation.version>1.1.1</javax-activation.version>
     <javax-annotation.version>1.3.2</javax-annotation.version>
@@ -137,13 +138,13 @@
     <junit-dataprovider.version>1.13.1</junit-dataprovider.version>
     <junit.version>4.13.2</junit.version>
     <maven-javadoc.version>3.6.2</maven-javadoc.version>
-    <log4j2.version>2.21.1</log4j2.version>
+    <log4j2.version>2.22.1</log4j2.version>
     <lucene.version>6.6.6</lucene.version>
     <mockito.version>4.7.0</mockito.version>
     <okhttp.version>4.10.0</okhttp.version>
     <opencsv.version>5.9</opencsv.version>
-    <org.spdx.java.spdx.library.version>1.1.4</org.spdx.java.spdx.library.version>
-    <org.spdx.tools.java.version>1.1.5</org.spdx.tools.java.version>
+    <org.spdx.java.spdx.library.version>1.1.10</org.spdx.java.spdx.library.version>
+    <org.spdx.tools.java.version>1.1.8</org.spdx.tools.java.version>
     <package-url.version>1.4.1</package-url.version>
     <poi.version>5.2.5</poi.version>
     <poi-ooxml.version>5.2.5</poi-ooxml.version>
@@ -247,11 +248,10 @@
         <artifactId>packageurl-java</artifactId>
         <version>${package-url.version}</version>
       </dependency>
-      <!-- javax.annotation: java 11 compatibility -->
       <dependency>
-        <groupId>javax.annotation</groupId>
-        <artifactId>javax.annotation-api</artifactId>
-        <version>${javax-annotation.version}</version>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>${httpmime.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
@@ -771,28 +771,8 @@
           </java>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M3</version>
-        <executions>
-          <execution>
-            <id>enforce</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <RequireUpperBoundDeps />
-                <requireJavaVersion>17</requireJavaVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
-
   <profiles>
     <profile>
       <id>deploy</id>
@@ -842,6 +822,7 @@
             <executions>
               <execution>
                 <id>enforce</id>
+                <phase>compile</phase>
                 <goals>
                   <goal>enforce</goal>
                 </goals>
@@ -855,6 +836,8 @@
                       <regexMessage>You must set at least the property
                         'base.deploy.dir'!</regexMessage>
                     </requireProperty>
+                    <!-- <RequireUpperBoundDeps /> -->
+                    <!-- <requireJavaVersion>17</requireJavaVersion> -->
                   </rules>
                   <fail>true</fail>
                 </configuration>

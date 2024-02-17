@@ -18,7 +18,8 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 
@@ -46,7 +47,7 @@ public class SvmConnector {
     private static final char[] KEY_STORE_PASSPHRASE;
     private static final String KEY_STORE_FILENAME;
     private static final char[] JAVA_KEYSTORE_PASSWORD;
-    private static final Logger log = Logger.getLogger(SvmConnector.class);
+    private static final Logger log = LogManager.getLogger(SvmConnector.class);
 
     public void sendProjectExportForMonitoringLists(String jsonString) throws IOException, SW360Exception {
         if(CommonUtils.isNullEmptyOrWhitespace(MONITORING_LIST_API_URL)) {
