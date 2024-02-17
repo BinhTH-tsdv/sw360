@@ -95,6 +95,7 @@
     <json-path.version>2.9.0</json-path.version>
     <json-smart.version>2.4.10</json-smart.version>
     <json-simple.version>2.3.1</json-simple.version>
+    <googlecode-json-simple.version>1.1.1</googlecode-json-simple.version>
     <jackson.version>2.14.2</jackson.version>
 
     <!-- Dependencies version properties -->
@@ -140,6 +141,7 @@
     <lucene.version>6.6.6</lucene.version>
     <mockito.version>4.7.0</mockito.version>
     <okhttp.version>4.10.0</okhttp.version>
+    <opencsv.version>5.9</opencsv.version>
     <org.spdx.java.spdx.library.version>1.1.4</org.spdx.java.spdx.library.version>
     <org.spdx.tools.java.version>1.1.5</org.spdx.tools.java.version>
     <package-url.version>1.4.1</package-url.version>
@@ -219,6 +221,11 @@
         <groupId>com.github.cliftonlabs</groupId>
         <artifactId>json-simple</artifactId>
         <version>${json-simple.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode.json-simple</groupId>
+        <artifactId>json-simple</artifactId>
+        <version>${googlecode-json-simple.version}</version>
       </dependency>
       <dependency>
         <groupId>org.json</groupId>
@@ -502,13 +509,11 @@
         <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
         <version>${joda-time.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.tngtech.jgiven</groupId>
         <artifactId>jgiven-junit</artifactId>
@@ -569,7 +574,11 @@
         <version>${javax.servlet-api.version}</version>
         <scope>provided</scope>
       </dependency>
-
+      <dependency>
+        <groupId>com.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>${opencsv.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -751,12 +760,12 @@
               <nrOfIndentSpace>2</nrOfIndentSpace>
             </sortPom>
           </pom>
-            <markdown>
-              <includes>
-                <include>**/*.md</include>
-              </includes>
-              <flexmark></flexmark>
-            </markdown>
+          <markdown>
+            <includes>
+              <include>**/*.md</include>
+            </includes>
+            <flexmark></flexmark>
+          </markdown>
           <java>
             <eclipse></eclipse>
           </java>
@@ -775,6 +784,7 @@
             <configuration>
               <rules>
                 <RequireUpperBoundDeps />
+                <requireJavaVersion>17</requireJavaVersion>
               </rules>
             </configuration>
           </execution>
