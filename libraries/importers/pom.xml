@@ -8,6 +8,26 @@
   ~
   ~ SPDX-License-Identifier: EPL-2.0
   -->
+<
+<
+<
+<
+<
+<
+< HEAD
+=======
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<parent>
+	<groupId>org.eclipse.sw360</groupId>
+	<artifactId>libraries</artifactId>
+	<version>${revision}</version>
+</parent>
+<artifactId>importers</artifactId>
+<packaging>jar</packaging>
+>>>>>>> 4322012f (refactor(maven): REsolve some maven warnings)
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -72,13 +92,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.sw360</groupId>
 			<artifactId>datahandler</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.sw360</groupId>
 			<artifactId>src-components</artifactId>
@@ -97,20 +115,17 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.sw360</groupId>
 			<artifactId>commonIO</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.sw360</groupId>
 			<artifactId>exporters</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.sw360</groupId>
 			<artifactId>datahandler</artifactId>
@@ -118,7 +133,6 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
