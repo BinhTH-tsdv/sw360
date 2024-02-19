@@ -586,16 +586,16 @@
         <artifactId>spring-boot-starter-web</artifactId>
         <version>${spring-boot.version}</version>
         <exclusions>
-            <exclusion>
-                <artifactId>commons-logging</artifactId>
-                <groupId>commons-logging</groupId>
-            </exclusion>
-            <exclusion>
-                <artifactId>spring-boot-starter-logging</artifactId>
-                <groupId>org.springframework.boot</groupId>
-            </exclusion>
+          <exclusion>
+            <artifactId>commons-logging</artifactId>
+            <groupId>commons-logging</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>spring-boot-starter-logging</artifactId>
+            <groupId>org.springframework.boot</groupId>
+          </exclusion>
         </exclusions>
-    </dependency>
+      </dependency>
       <dependency>
         <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
@@ -849,7 +849,6 @@
             <executions>
               <execution>
                 <id>enforce</id>
-                <phase>compile</phase>
                 <goals>
                   <goal>enforce</goal>
                 </goals>
@@ -864,7 +863,9 @@
                         'base.deploy.dir'!</regexMessage>
                     </requireProperty>
                     <!-- <RequireUpperBoundDeps /> -->
-                    <!-- <requireJavaVersion>17</requireJavaVersion> -->
+                    <requireJavaVersion>
+                      <version>[17,18)</version>
+                    </requireJavaVersion>
                   </rules>
                   <fail>true</fail>
                 </configuration>
