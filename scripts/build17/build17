@@ -1,0 +1,22 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(realpath "$(dirname "$0")")"
+
+# Build Docker imag if not exists
+if [ -n "$DOCKER_BUILD" ]; then
+    docker \
+    buildx \
+    build \
+    --tag ghcr.io/eclipse-sw360/build17:latest \
+    -f "${SCRIPT_DIR}/Dockerfile" .
+else
+    docker run -it --rm \
+    --expose 5984 \
+    --mount type=volume,src=maven,dst=/root/.m2 \
+    -v "$PWD":/workspace \
+    --workdir /workspace \
+    --name sw360_build \
+    --hostname sw360build \
+    ghcr.io/eclipse-sw360/build17 \
+    mvn clean install -P deploy
+fi
