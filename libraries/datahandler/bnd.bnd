@@ -34,6 +34,7 @@ Import-Package: \
 	org.apache.commons.logging.*, \
 	org.apache.logging.log4j, \
 	org.slf4j.*, \
+    org.eclipse.sw360.nouveau.*
 
 Conditional-Package: \
 	com.github.ldriscoll.ektorplucene.*, \
