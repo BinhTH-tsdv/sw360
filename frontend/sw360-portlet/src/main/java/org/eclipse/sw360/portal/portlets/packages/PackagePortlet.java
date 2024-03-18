@@ -71,7 +71,7 @@ import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
-import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.NouveauLuceneAwareDatabaseConnector;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
 import org.eclipse.sw360.datahandler.thrift.DateRange;
@@ -307,10 +307,10 @@ public class PackagePortlet extends Sw360Portlet {
                 Set<String> values = CommonUtils.splitToSet(parameter);
                 if (filteredField.equals(Package._Fields.NAME) || filteredField.equals(Package._Fields.VERSION)) {
                     if (!exactMatch.isEmpty() && !(parameter.startsWith("\"") && parameter.endsWith("\""))) {
-                        values = values.stream().map(s -> "\"" + s + "\"").map(LuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
+                        values = values.stream().map(s -> "\"" + s + "\"").map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
                     }
                     else {
-                        values = values.stream().map(LuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
+                        values = values.stream().map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
                     }
                 }
                 filterMap.put(filteredField.getFieldName(), values);

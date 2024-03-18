@@ -38,7 +38,7 @@ import com.liferay.portal.kernel.model.Organization;
 import org.eclipse.sw360.commonIO.SampleOptions;
 import org.eclipse.sw360.datahandler.common.*;
 import org.eclipse.sw360.datahandler.common.WrappedException.WrappedTException;
-import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.NouveauLuceneAwareDatabaseConnector;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.*;
 import org.eclipse.sw360.datahandler.thrift.attachments.Attachment;
@@ -494,7 +494,7 @@ public class ComponentPortlet extends FossologyAwarePortlet {
             // \W = a non word character, so not in [a-zA-Z_0-9]
             Set<String> splitCName = Sets.newHashSet(cName.split("\\W"));
             // to find tomcat even on a cName of tomca, add * to the search term
-            Set<String> splitExtendedCName = splitCName.stream().map(LuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
+            Set<String> splitExtendedCName = splitCName.stream().map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
 
             try {
                 // thrift service does not support OR queries at the moment, so we have to query
@@ -2285,10 +2285,10 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 Set<String> values = CommonUtils.splitToSet(parameter);
                 if (filteredField.equals(Component._Fields.NAME)) {
                     if (!exactMatch.isEmpty() && !(parameter.startsWith("\"") && parameter.endsWith("\""))) {
-                        values = values.stream().map(s -> "\"" + s + "\"").map(LuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
+                        values = values.stream().map(s -> "\"" + s + "\"").map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
                     }
                     else {
-                        values = values.stream().map(LuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
+                        values = values.stream().map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
                     }
                 }
 

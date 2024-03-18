@@ -36,7 +36,7 @@ import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.PaginationData;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
-import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.NouveauLuceneAwareDatabaseConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.users.ClientMetadata;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
@@ -794,7 +794,7 @@ public class UserPortlet extends Sw360Portlet {
                 if (filteredField.equals(org.eclipse.sw360.datahandler.thrift.users.User._Fields.GIVENNAME)
                         || filteredField.equals(org.eclipse.sw360.datahandler.thrift.users.User._Fields.LASTNAME)
                         || filteredField.equals(org.eclipse.sw360.datahandler.thrift.users.User._Fields.EMAIL)) {
-                    values = values.stream().map(LuceneAwareDatabaseConnector::prepareWildcardQuery)
+                    values = values.stream().map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery)
                             .collect(Collectors.toSet());
                 }
                 filterMap.put(filteredField.getFieldName(), values);

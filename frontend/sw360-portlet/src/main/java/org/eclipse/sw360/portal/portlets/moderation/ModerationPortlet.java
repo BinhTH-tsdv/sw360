@@ -30,7 +30,7 @@ import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
-import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.NouveauLuceneAwareDatabaseConnector;
 import org.eclipse.sw360.datahandler.permissions.PermissionUtils;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
 import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
@@ -1204,10 +1204,10 @@ public class ModerationPortlet extends FossologyAwarePortlet {
                         || filteredField.equals(ModerationRequest._Fields.REQUESTING_USER)
                         || filteredField.equals(ModerationRequest._Fields.REQUESTING_USER_DEPARTMENT)) {
                     if (!exactMatch.isEmpty() && !(parameter.startsWith("\"") && parameter.endsWith("\""))) {
-                        values = values.stream().map(s -> "\"" + s + "\"").map(LuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
+                        values = values.stream().map(s -> "\"" + s + "\"").map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
                     }
                     else {
-                        values = values.stream().map(LuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
+                        values = values.stream().map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery).collect(Collectors.toSet());
                     }
                 }
                 filterMap.put(filteredField.getFieldName(), values);
