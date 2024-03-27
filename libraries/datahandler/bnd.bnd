@@ -17,7 +17,6 @@ Bundle-Version: 1.0.0
 -noee: true
 
 Export-Package: \
-	com.github.ldriscoll.ektorplucene.*, \
 	org.apache.thrift.*, \
 	org.eclipse.sw360.datahandler.*, \
 	org.ektorp.*, \
@@ -37,7 +36,6 @@ Import-Package: \
     org.eclipse.sw360.nouveau.*
 
 Conditional-Package: \
-	com.github.ldriscoll.ektorplucene.*, \
 	org.apache.http.*, \
 	org.apache.thrift.*, \
 	org.ektorp.*, \
