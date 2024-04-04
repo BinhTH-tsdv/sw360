@@ -161,7 +161,6 @@ RUN --mount=type=bind,target=/build/sw360,rw \
     && set -a \
     && source /run/secrets/sw360 \
     && envsubst < scripts/docker-config/couchdb.properties.template | tee scripts/docker-config/etc_sw360/couchdb.properties \
-    && envsubst < scripts/docker-config/couchdb-lucene.ini | tee third-party/couchdb-lucene/src/main/resources/couchdb-lucene.ini \
     && set +a \
     && cp scripts/docker-config/etc_sw360/couchdb.properties build-configuration/resources/ \
     && cp -a scripts/docker-config/etc_sw360 /etc/sw360 \
