@@ -426,6 +426,8 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         obligation.setTitle("obligation_title");
         obligation.setText("This is text of Obligation");
         obligation.setObligationType(ObligationType.PERMISSION);
+        obligation.setObligationLevel(ObligationLevel.LICENSE_OBLIGATION);
+        Map<String, String> releaseIdToAcceptedCLI = Map.of("376527651233", "aa1122334455bb33");
         obligationList.add(obligation);
         license.setObligations(obligationList);
 
@@ -465,18 +467,17 @@ public class ProjectSpecTest extends TestRestDocsSpecBase {
         Set<Release> releaseSet = new HashSet<>();
         releaseSet.add(release7);
         Map<String, AttachmentUsage> licenseInfoUsages = Map.of("aa1122334455bb33", attachmentUsage3);
-        Map<String, String> releaseIdToAcceptedCLI = Map.of(release7.getId(), "aa1122334455bb33");
+        Map<String, String> releaseIdToAcceptedCli = Map.of(release7.getId(), "aa1122334455bb33");
         Map<String, Set<Release>> licensesFromAttachmentUsage = Map.of(license.getId(), releaseSet);
         ObligationStatusInfo osi = new ObligationStatusInfo();
         osi.setText(obligation.getText());
         osi.setLicenseIds(licenseIds2);
-        osi.setReleaseIdToAcceptedCLI(releaseIdToAcceptedCLI);
+        osi.setReleaseIdToAcceptedCLI(releaseIdToAcceptedCli);
         osi.setId(obligation.getId());
         osi.setComment("comment");
         osi.setStatus(ObligationStatus.OPEN);
         osi.setObligationType(obligation.getObligationType());
         Map<String, ObligationStatusInfo> obligationStatusMap = Map.of(obligation.getTitle(), osi);
-        
         ObligationList obligationLists = new ObligationList();
         obligationLists.setProjectId("123456733");
         obligationLists.setId("009");

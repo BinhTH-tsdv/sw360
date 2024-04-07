@@ -111,7 +111,6 @@
     <commons-cli.version>1.5.0</commons-cli.version>
     <dom4j.version>2.1.3</dom4j.version>
     <ektorp.version>1.5.0</ektorp.version>
-    <ektorplucene.version>0.2.0</ektorplucene.version>
     <findbugs-annotations.version>1.3.9-1</findbugs-annotations.version>
     <guava.version>33.1.0-jre</guava.version>
     <hamcrest.version>1.3</hamcrest.version>
@@ -354,26 +353,9 @@
         <version>${commons-collection4.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.github.ldriscoll</groupId>
-        <artifactId>ektorplucene</artifactId>
-        <version>${ektorplucene.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>net.sourceforge.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <!-- Replaces ektorplucene findbugs exclusion-->
-      <dependency>
         <groupId>com.github.stephenc.findbugs</groupId>
         <artifactId>findbugs-annotations</artifactId>
         <version>${findbugs-annotations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ektorp</groupId>
-        <artifactId>org.ektorp</artifactId>
-        <version>${ektorp.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
