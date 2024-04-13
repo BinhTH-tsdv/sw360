@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,9 +26,9 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.thrift.TException;
@@ -113,6 +114,7 @@ public class CycloneDxBOMImporter {
     private static final String INVALID_COMPONENT = "invalidComp";
     private static final String INVALID_RELEASE = "invalidRel";
     private static final String INVALID_PACKAGE = "invalidPkg";
+    private static final String INVALID_VCS = "invalidVCS";
     private static final String PROJECT_ID = "projectId";
     private static final String PROJECT_NAME = "projectName";
     private static final boolean IS_PACKAGE_PORTLET_ENABLED = SW360Constants.IS_PACKAGE_PORTLET_ENABLED;
@@ -142,13 +144,11 @@ public class CycloneDxBOMImporter {
      * @return Map<String, List<org.cyclonedx.model.Component>>
      */
     private Map<String, List<org.cyclonedx.model.Component>> getVcsToComponentMap(List<org.cyclonedx.model.Component> components) {
-        return components.stream().filter(Objects::nonNull)
+        return components.parallelStream().filter(Objects::nonNull)
                 .flatMap(comp -> CommonUtils.nullToEmptyList(comp.getExternalReferences()).stream()
                         .filter(Objects::nonNull)
                         .filter(ref -> ExternalReference.Type.VCS.equals(ref.getType()))
                         .map(ExternalReference::getUrl)
-                        .map(String::toLowerCase)
-                        .map(url -> StringUtils.removeEnd(url, DOT_GIT))
                         .map(url -> new AbstractMap.SimpleEntry<>(url, comp)))
                 .collect(Collectors.groupingBy(e -> e.getKey(),
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
@@ -190,21 +190,15 @@ public class CycloneDxBOMImporter {
                     .filter(Objects::nonNull).flatMap(List::stream).map(ExternalReference::getType).filter(typeFilter).count();
             long componentsCount = components.size();
             org.cyclonedx.model.Component compMetadata = bomMetadata.getComponent();
-            Map<String, List<org.cyclonedx.model.Component>> vcsToComponentMap = new HashMap<>();
+            final Map<String, List<org.cyclonedx.model.Component>> vcsToComponentMap = new HashMap<>();
 
             if (!IS_PACKAGE_PORTLET_ENABLED) {
                 vcsToComponentMap.put("", components);
                 requestSummary = importSbomAsProject(compMetadata, vcsToComponentMap, projectId, attachmentContent);
             } else {
+                vcsToComponentMap.putAll(getVcsToComponentMap(components));
 
-                vcsToComponentMap = getVcsToComponentMap(components);
-                if (componentsCount == vcsCount) {
-
-                    requestSummary = importSbomAsProject(compMetadata, vcsToComponentMap, projectId, attachmentContent);
-                } else if (componentsCount > vcsCount) {
-
-                    requestSummary = importSbomAsProject(compMetadata, vcsToComponentMap, projectId, attachmentContent);
-
+                requestSummary = importSbomAsProject(compMetadata, vcsToComponentMap, projectId, attachmentContent);
                     if (requestSummary.requestStatus.equals(RequestStatus.SUCCESS)) {
 
                         String jsonMessage = requestSummary.getMessage();
@@ -214,6 +208,14 @@ public class CycloneDxBOMImporter {
                         if (CommonUtils.isNullEmptyOrWhitespace(projId)) {
                             return requestSummary;
                         }
+                        final List<org.cyclonedx.model.Component> componentsWithInvalidVCS = new ArrayList<>();
+
+                        if (CommonUtils.isNotNullEmptyOrWhitespace(messageMap.get(INVALID_VCS))) {
+                        componentsWithInvalidVCS.addAll(Stream.of(messageMap.get(INVALID_VCS).split("\\|\\|"))
+                                .map(vcs -> vcsToComponentMap.get(vcs)).flatMap(List::stream)
+                                .collect(Collectors.toList()));
+                        }
+
                         final Set<String> duplicatePackages = new HashSet<>();
                         final Set<String> componentsWithoutVcs = new HashSet<>();
                         final Set<String> invalidPackages = new HashSet<>();
@@ -236,7 +238,8 @@ public class CycloneDxBOMImporter {
 
                         for (org.cyclonedx.model.Component comp : components) {
                             if (CommonUtils.isNullOrEmptyCollection(comp.getExternalReferences())
-                                    || comp.getExternalReferences().stream().map(ExternalReference::getType).filter(typeFilter).count() == 0) {
+                                    || comp.getExternalReferences().stream().map(ExternalReference::getType).filter(typeFilter).count() == 0
+                                    || componentsWithInvalidVCS.contains(comp)) {
 
                                 final var fullName = SW360Utils.getVersionedName(comp.getName(), comp.getVersion());
                                 final var licenses = getLicenseFromBomComponent(comp);
@@ -297,13 +300,7 @@ public class CycloneDxBOMImporter {
                         messageMap.put(PKG_REUSE_COUNT_KEY, String.valueOf(pkgReuseCount));
                         requestSummary.setMessage(convertCollectionToJSONString(messageMap));
                     }
-                } else {
-                    requestSummary.setMessage(String.format(String.format(
-                            "SBOM import aborted with error: Multiple vcs information found in compnents, vcs found: %s and total components: %s",
-                            vcsCount, componentsCount)));
-                    return requestSummary;
                 }
-            }
 
             if (RequestStatus.SUCCESS.equals(requestSummary.getRequestStatus())) {
                 String jsonMessage = requestSummary.getMessage();
@@ -553,6 +550,7 @@ public class CycloneDxBOMImporter {
 
         final var countMap = new HashMap<String, Integer>();
         final Set<String> duplicateComponents = new HashSet<>();
+        final Set<String> invalidVCS = new HashSet<>();
         final Set<String> duplicateReleases = new HashSet<>();
         final Set<String> duplicatePackages = new HashSet<>();
         final Set<String> invalidReleases = new HashSet<>();
@@ -575,9 +573,13 @@ public class CycloneDxBOMImporter {
                     String existingCompName = getComponetNameById(comp.getId(), user);
                     comp.setName(existingCompName);
                 } else {
+                    if (compAddSummary.getRequestStatus().equals(AddDocumentRequestStatus.DUPLICATE)) {
                     // in case of more than 1 duplicate found, then continue and show error message in UI.
                     log.warn("found multiple components: " + comp.getName());
                     duplicateComponents.add(comp.getName());
+                    } else if (compAddSummary.getRequestStatus().equals(AddDocumentRequestStatus.INVALID_INPUT)) {
+                        invalidVCS.add(entry.getKey());
+                    }
                     continue;
                 }
 
@@ -677,6 +679,7 @@ public class CycloneDxBOMImporter {
         project.setReleaseIdToUsage(releaseRelationMap);
         final Map<String, String> messageMap = new HashMap<>();
         messageMap.put(DUPLICATE_COMPONENT, String.join(JOINER, duplicateComponents));
+        messageMap.put(INVALID_VCS, String.join(JOINER, invalidVCS));
         messageMap.put(DUPLICATE_RELEASE, String.join(JOINER, duplicateReleases));
         messageMap.put(DUPLICATE_PACKAGE, String.join(JOINER, duplicatePackages));
         messageMap.put(INVALID_RELEASE, String.join(JOINER, invalidReleases));
@@ -908,8 +911,10 @@ public class CycloneDxBOMImporter {
             Matcher firstSlashMatcher = FIRST_SLASH_PATTERN.matcher(compName);
             if (firstSlashMatcher.find()) {
                 compName = firstSlashMatcher.group(1);
-                compName = StringUtils.substringBefore(compName, HASH);
                 compName = compName.replaceAll(SLASH, ".");
+                if (vcsUrl.toLowerCase().contains("github.com")) {
+                    compName = compName.replaceAll("\\.git.*", "").replaceAll("#.*", "");
+                }
             }
         }
 
