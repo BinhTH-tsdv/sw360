@@ -183,6 +183,8 @@ struct ProjectReleaseRelationship {
     3: optional string comment,
     4: optional string createdOn,
     5: optional string createdBy,
+    6: optional string releaseName,
+    7: optional string version,
 }
 
 struct VerificationStateInfo {
