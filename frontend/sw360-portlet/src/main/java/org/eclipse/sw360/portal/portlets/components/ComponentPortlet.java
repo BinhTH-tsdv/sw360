@@ -2396,7 +2396,12 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 String releaseId = request.getParameter(RELEASE_ID);
                 if (releaseId != null) {
                     release = client.getAccessibleReleaseByIdForEdit(releaseId, user);
+                    String version_before = release.getVersion();
                     ComponentPortletUtils.updateReleaseFromRequest(request, release);
+                    String version_after = release.getVersion();
+                    if (!version_before.equals(version_after)) {
+                        updateProjectReleaseRelationshipFields(release, user);
+                    }
                     String ModerationRequestCommentMsg = request.getParameter(MODERATION_REQUEST_COMMENT);
                     user.setCommentMadeDuringModerationRequest(ModerationRequestCommentMsg);
 
@@ -2514,6 +2519,29 @@ public class ComponentPortlet extends FossologyAwarePortlet {
                 }
             } catch (TException e) {
                 log.error("Error fetching release from backend!", e);
+            }
+        }
+    }
+
+    private void updateProjectReleaseRelationshipFields(Release release, User user) throws IOException, TException {
+        ProjectService.Iface client = thriftClients.makeProjectClient();
+        String id = release.getId();
+        Set<Project> projectList = client.searchByReleaseId(id, user);
+        if (projectList.size() > 0) {
+            for (Project project : projectList) {
+                Project FullProject = client.getProjectByIdForEdit(project.getId(), user);
+                Set<String> keys = new HashSet<>(FullProject.getReleaseIdToUsage().keySet());
+                for (String key : keys) {
+                    if (id.equals(key)) {
+                        ProjectReleaseRelationship projectReleaseRelationship = FullProject.getReleaseIdToUsage()
+                                .get(id);
+                        if (Objects.nonNull(projectReleaseRelationship)) {
+                            projectReleaseRelationship.setVersion(release.getVersion());
+                        }
+                    }
+                    break;
+                }
+                client.updateProject(FullProject, user);
             }
         }
     }
@@ -2808,9 +2836,13 @@ public class ComponentPortlet extends FossologyAwarePortlet {
 
             ProjectService.Iface client = thriftClients.makeProjectClient();
             Project project = client.getProjectByIdForEdit(projectId, user);
+            ComponentService.Iface rel_client = thriftClients.makeComponentClient();
+            Release release = rel_client.getReleaseById(releaseId, user);
 
             project.putToReleaseIdToUsage(releaseId,
-                    new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.OPEN));
+                    new ProjectReleaseRelationship(ReleaseRelationship.CONTAINED, MainlineState.OPEN)
+                    .setReleaseName(release.getName())
+                    .setVersion(release.getVersion()));
             client.updateProject(project, user);
 
             JSONObject jsonObject = JSONFactoryUtil.createJSONObject();

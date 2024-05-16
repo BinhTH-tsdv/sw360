@@ -787,6 +787,7 @@ public class RestControllerHelper<T> {
         embeddedProject.setId(project.getId());
         embeddedProject.setDescription(project.getDescription());
         embeddedProject.setProjectResponsible(project.getProjectResponsible());
+        embeddedProject.setProjectOwner(project.getProjectOwner());
         embeddedProject.setProjectType(project.getProjectType());
         embeddedProject.setState(project.getState());
         embeddedProject.setClearingState(project.getClearingState());

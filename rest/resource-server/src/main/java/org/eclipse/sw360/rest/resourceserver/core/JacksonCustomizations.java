@@ -189,7 +189,6 @@ public class JacksonCustomizations {
                 "createdBy",
                 "visbility",
                 "clearingTeam",
-                "projectOwner",
                 "homepage",
                 "wiki",
                 "documentState",
@@ -1830,7 +1829,9 @@ public class JacksonCustomizations {
                 "setReleaseRelation",
                 "setCreatedOn",
                 "setCreatedBy",
-                "setSpdxId"
+                "setSpdxId",
+                "setVersion",
+                "setReleaseName"
         })
         public static abstract class ProjectReleaseRelationshipMixin extends ProjectReleaseRelationship {
         }
