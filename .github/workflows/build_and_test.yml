@@ -87,8 +87,16 @@ jobs:
         bash scripts/install-thrift.sh
 
     - name: Build SW360
+      id: build
       run: |
         mvn clean install --no-transfer-progress -P deploy -Dhelp-docs=true -Dbase.deploy.dir=. -Dbackend.deploy.dir=${PWD}/deploy/webapps -Drest.deploy.dir=${PWD}/deploy/webapps -Djars.deploy.dir=${PWD}/deploy -DRunComponentVisibilityRestrictionTest=false -DRunPrivateProjectAccessTest=false -DRunRestForceUpdateTest=false -Dmaven.plugin.validation=VERBOSE
+
+    - name: Upload test reports
+      if: steps.build.outcome == 'failure'
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports
+        path: ${{ github.workspace }}/sw360/libraries/importers/target/surefire-reports
 
     - name: Run PrivateProjectAccessTest
       run: |
@@ -117,3 +125,4 @@ jobs:
       run: |
         cd clients
         mvn clean install --no-transfer-progress -DRunRestIntegrationTest=true
+
