@@ -61,7 +61,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.requestF
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.formParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -216,7 +216,7 @@ public class ModerationRequestSpecTest extends TestRestDocsSpecBase {
                         .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
-                        requestParameters(
+                        formParameters(
                                 parameterWithName("page").description("Page of moderation requests"),
                                 parameterWithName("page_entries").description("Amount of requests per page")
                         ),
@@ -259,7 +259,7 @@ public class ModerationRequestSpecTest extends TestRestDocsSpecBase {
                         .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
-                        requestParameters(
+                        formParameters(
                                 parameterWithName("page").description("Page of moderation requests"),
                                 parameterWithName("page_entries").description("Amount of requests per page"),
                                 parameterWithName("allDetails").description("Set `true` to get all details for the <<resources-moderationRequest, ModerationRequests>>")
@@ -272,6 +272,7 @@ public class ModerationRequestSpecTest extends TestRestDocsSpecBase {
                         responseFields(
                                 subsectionWithPath("_embedded.sw360:moderationRequests").description("An array of <<resources-moderationRequest, ModerationRequest>>."),
                                 fieldWithPath("_embedded.sw360:moderationRequests.[]id").description("The id of the moderation request."),
+                                fieldWithPath("_embedded.sw360:moderationRequests.[]revision").description("The revision of the moderation request."),
                                 fieldWithPath("_embedded.sw360:moderationRequests.[]timestamp").description("Timestamp (in unix epoch) when the request was created."),
                                 fieldWithPath("_embedded.sw360:moderationRequests.[]timestampOfDecision").description("Timestamp (in unix epoch) when the decision on the request was made."),
                                 fieldWithPath("_embedded.sw360:moderationRequests.[]documentId").description("The ID of the document for which the moderation request was made."),
@@ -318,6 +319,7 @@ public class ModerationRequestSpecTest extends TestRestDocsSpecBase {
                         ),
                         responseFields(
                                 fieldWithPath("id").description("The id of the moderation request."),
+                                fieldWithPath("revision").description("The revision number of the request."),
                                 fieldWithPath("timestamp").description("Timestamp (in unix epoch) when the request was created."),
                                 fieldWithPath("timestampOfDecision").description("Timestamp (in unix epoch) when the decision on the request was made."),
                                 fieldWithPath("documentId").description("The ID of the document for which the moderation request was made."),
@@ -359,7 +361,7 @@ public class ModerationRequestSpecTest extends TestRestDocsSpecBase {
                         .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
-                        requestParameters(
+                        formParameters(
                                 parameterWithName("state").description("The moderation request state of the request. Possible values are: <open|closed>"),
                                 parameterWithName("page").description("Page of moderation requests").optional(),
                                 parameterWithName("page_entries").description("Amount of requests per page").optional(),
@@ -459,7 +461,7 @@ public class ModerationRequestSpecTest extends TestRestDocsSpecBase {
                         .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
                 .andDo(this.documentationHandler.document(
-                        requestParameters(
+                        formParameters(
                                 parameterWithName("page").description("Page of moderation requests"),
                                 parameterWithName("page_entries").description("Amount of requests per page"),
                                 parameterWithName("sort").description("Sort the result by the given field and order. " +

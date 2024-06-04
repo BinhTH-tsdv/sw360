@@ -65,14 +65,22 @@ import org.eclipse.sw360.rest.resourceserver.moderationrequest.ModerationRequest
 import org.eclipse.sw360.rest.resourceserver.moderationrequest.Sw360ModerationRequestService;
 import org.eclipse.sw360.rest.resourceserver.obligation.Sw360ObligationService;
 import org.eclipse.sw360.rest.resourceserver.project.EmbeddedProject;
+import org.eclipse.sw360.rest.resourceserver.vulnerability.VulnerabilityController;
 import org.jetbrains.annotations.NotNull;
 import org.eclipse.sw360.rest.resourceserver.project.EmbeddedProjectDTO;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.eclipse.sw360.rest.resourceserver.project.ProjectController;
+import org.eclipse.sw360.datahandler.thrift.components.ComponentService;
+import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
+import org.eclipse.sw360.datahandler.thrift.ProjectReleaseRelationship;
+import org.eclipse.sw360.datahandler.thrift.Quadratic;
+import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.rest.resourceserver.obligation.ObligationController;
 import org.eclipse.sw360.rest.resourceserver.packages.PackageController;
 import org.eclipse.sw360.rest.resourceserver.packages.SW360PackageService;
+import org.eclipse.sw360.rest.resourceserver.project.EmbeddedProject;
+import org.eclipse.sw360.rest.resourceserver.project.ProjectController;
 import org.eclipse.sw360.rest.resourceserver.project.Sw360ProjectService;
 import org.eclipse.sw360.rest.resourceserver.release.ReleaseController;
 import org.eclipse.sw360.rest.resourceserver.release.Sw360ReleaseService;
@@ -81,6 +89,7 @@ import org.eclipse.sw360.rest.resourceserver.user.UserController;
 import org.eclipse.sw360.rest.resourceserver.vendor.Sw360VendorService;
 import org.eclipse.sw360.rest.resourceserver.vendor.VendorController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -92,6 +101,8 @@ import org.springframework.hateoas.server.core.EmbeddedWrapper;
 import org.springframework.hateoas.server.core.EmbeddedWrappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -100,7 +111,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -154,6 +165,7 @@ public class RestControllerHelper<T> {
     private static final double MIN_CVSS = 0;
     private static final double MAX_CVSS = 10;
     public static final String PAGINATION_PARAM_PAGE_ENTRIES = "page_entries";
+    private static final String JWT_SUBJECT = "sub";
 
     @NonNull
     private final com.fasterxml.jackson.databind.Module sw360Module;
@@ -162,9 +174,23 @@ public class RestControllerHelper<T> {
 
     public User getSw360UserFromAuthentication() {
         try {
-            String userId;
+//            String userId;
+            String userId = null;
             Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (principle instanceof String) {
+            if (principle instanceof Jwt jwt) {
+                if (jwt.getClaims().containsKey("resource_access") || !jwt.getClaims().containsKey("user_name")) {
+                    userId = jwt.getClaim("email");
+                    if (userId == null) {
+                        userId = jwt.getClaim("mapped_user_email");
+                    }
+                } else {
+                    String clientId = jwt.getClaim(JWT_SUBJECT);
+                    if (clientId == null) {
+                        userId = jwt.getClaim("user_name");
+                        return userService.getUserByEmailOrExternalId(userId);
+                    }
+                }
+            } else if (principle instanceof String) {
                 userId = principle.toString();
             } else {
                 org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) principle;
@@ -306,17 +332,6 @@ public class RestControllerHelper<T> {
             sw360User = new User();
             sw360User.setId(emailId).setEmail(emailId);
             LOGGER.debug("Could not get user object from backend with email: " + emailId);
-        }
-        return sw360User;
-    }
-
-    public User getUserByEmailOrNull(String emailId) {
-        User sw360User;
-        try {
-            sw360User = userService.getUserByEmail(emailId);
-        } catch (RuntimeException e) {
-            LOGGER.debug("Could not get user object from backend with email: " + emailId);
-            return null;
         }
         return sw360User;
     }
@@ -788,8 +803,7 @@ public class RestControllerHelper<T> {
         embeddedProject.setId(project.getId());
         embeddedProject.setDescription(project.getDescription());
         embeddedProject.setProjectResponsible(project.getProjectResponsible());
-        embeddedProject.setProjectOwner(project.getProjectOwner());
-	embeddedProject.setProjectType(project.getProjectType());
+        embeddedProject.setProjectType(project.getProjectType());
         embeddedProject.setState(project.getState());
         embeddedProject.setClearingState(project.getClearingState());
         embeddedProject.setVersion(project.getVersion());
@@ -1486,10 +1500,5 @@ public class RestControllerHelper<T> {
             HalResource<License> licenseHalResource = addEmbeddedLicense(licenseId);
             halRelease.addEmbeddedResource("sw360:otherLicenses", licenseHalResource);
         }
-    }
-
-    public String getBaseUrl(HttpServletRequest request) {
-        String requestURL = request.getRequestURL().toString();
-        return requestURL.substring(0, requestURL.indexOf(request.getRequestURI()));
     }
 }

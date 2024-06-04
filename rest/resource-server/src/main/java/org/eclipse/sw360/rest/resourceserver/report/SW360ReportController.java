@@ -11,10 +11,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,8 +22,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.thrift.TException;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.common.SW360Utils;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
@@ -82,6 +79,8 @@ public class SW360ReportController implements RepresentationModelProcessor<Repos
             @RequestParam(value = "withlinkedreleases", required = false, defaultValue = "false") boolean withLinkedReleases,
             @Parameter(description = "Report download format.", schema = @Schema(allowableValues = {"xls", "xlsx"}))
             @RequestParam(value = "mimetype", required = false, defaultValue = "xlsx") String mimeType,
+            @Parameter(description = "Downloading project report required mail link.")
+            @RequestParam(value = "mailrequest", required = false, defaultValue = "false") boolean mailRequest,
             @Parameter(description = "Project id.")
             @RequestParam(value = "projectId", required = false) String projectId,
             @Parameter(description = "Module name.", schema = @Schema(allowableValues = {PROJECTS, COMPONENTS}))
@@ -94,19 +93,17 @@ public class SW360ReportController implements RepresentationModelProcessor<Repos
         try {
             if (validateMimeType(mimeType)) {
                 switch (module) {
-                case PROJECTS:
-                    getProjectReports(withLinkedReleases, SW360Constants.MAIL_REQUEST_FOR_PROJECT_REPORT, response,
-                            request, sw360User, module, projectId);
-                    break;
-                case COMPONENTS:
-                    getComponentsReports(withLinkedReleases, SW360Constants.MAIL_REQUEST_FOR_COMPONENT_REPORT, response,
-                            request, sw360User, module);
-                    break;
-                case LICENSES:
-                    getLicensesReports(response, sw360User, module);
-                    break;
-                default:
-                    break;
+                    case PROJECTS:
+                        getProjectReports(withLinkedReleases, mailRequest, response, request, sw360User, module, projectId);
+                        break;
+                    case COMPONENTS:
+                        getComponentsReports(withLinkedReleases, mailRequest, response, request, sw360User, module);
+                        break;
+                    case LICENSES:
+                        getLicensesReports(response, sw360User, module);
+                        break;
+                    default:
+                        break;
                 }
             } else {
                 throw new TException("Error : Mimetype either should be : xls/xlsx");
@@ -122,7 +119,7 @@ public class SW360ReportController implements RepresentationModelProcessor<Repos
             if (mailRequest) {
                 sw360ReportService.getUploadedProjectPath(sw360User, withLinkedReleases,getBaseUrl(request), projectId);
                 JsonObject responseJson = new JsonObject();
-                responseJson.addProperty("response", "The downloaded report link will be send to the end user.");
+                responseJson.addProperty("response", "Project report download link will get send to the end user.");
                 response.getWriter().write(responseJson.toString());
             } else {
                 downloadExcelReport(withLinkedReleases, response, sw360User, module, projectId);
@@ -213,7 +210,6 @@ public class SW360ReportController implements RepresentationModelProcessor<Repos
     )
     @GetMapping(value = REPORTS_URL + "/download")
     public void downloadExcel(
-            HttpServletRequest request,
             HttpServletResponse response,
             @Parameter(description = "Module name.", schema = @Schema(allowableValues = {PROJECTS, COMPONENTS}))
             @RequestParam(value = "module", required = true) String module,
@@ -222,7 +218,9 @@ public class SW360ReportController implements RepresentationModelProcessor<Repos
             @Parameter(description = "Extended by releases.")
             @RequestParam(value = "extendedByReleases", required = false, defaultValue = "false") boolean extendedByReleases
     ) throws TException {
-        final User user = restControllerHelper.getUserByEmail(request.getParameter("user"));
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication();
+        User user = restControllerHelper.getUserByEmail(sw360User.getEmail());
+        String fileConstant = module+"-%s.xlsx";
         try {
             ByteBuffer buffer = null;
             switch (module) {
@@ -241,16 +239,9 @@ public class SW360ReportController implements RepresentationModelProcessor<Repos
             if (null == buffer) {
                 throw new TException("No data available for the user " + user.getEmail());
             }
-            String fileName;
-            if(module.equals(LICENSES)) {
-                fileName = String.format("licenses-%s.xlsx", SW360Utils.getCreatedOn());
-            } else if(module.equals(PROJECTS)) {
-                fileName = sw360ReportService.getDocumentName(user, request.getParameter("projectId"));
-            }else {
-                fileName = sw360ReportService.getDocumentName(user, null);
-            }
+            String filename = String.format(fileConstant, SW360Utils.getCreatedOn());
             response.setContentType(CONTENT_TYPE);
-            response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", fileName));
+            response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
             copyDataStreamToResponse(response, buffer);
         } catch (Exception e) {
             throw new TException(e.getMessage());
