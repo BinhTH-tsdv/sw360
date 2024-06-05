@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.security.auto.login.AutoLoginException;
 import com.liferay.portal.kernel.security.pwd.PasswordEncryptorUtil;
 import com.liferay.portal.kernel.service.*;
-import com.liferay.portal.kernel.service.persistence.CountryUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -36,7 +35,7 @@ import org.eclipse.sw360.datahandler.common.CommonUtils;
 import org.eclipse.sw360.datahandler.thrift.PaginationData;
 import org.eclipse.sw360.datahandler.thrift.RequestStatus;
 import org.eclipse.sw360.datahandler.common.ThriftEnumUtils;
-import org.eclipse.sw360.datahandler.couchdb.lucene.LuceneAwareDatabaseConnector;
+import org.eclipse.sw360.datahandler.couchdb.lucene.NouveauLuceneAwareDatabaseConnector;
 import org.eclipse.sw360.datahandler.thrift.SW360Exception;
 import org.eclipse.sw360.datahandler.thrift.users.ClientMetadata;
 import org.eclipse.sw360.datahandler.thrift.users.UserGroup;
@@ -794,7 +793,7 @@ public class UserPortlet extends Sw360Portlet {
                 if (filteredField.equals(org.eclipse.sw360.datahandler.thrift.users.User._Fields.GIVENNAME)
                         || filteredField.equals(org.eclipse.sw360.datahandler.thrift.users.User._Fields.LASTNAME)
                         || filteredField.equals(org.eclipse.sw360.datahandler.thrift.users.User._Fields.EMAIL)) {
-                    values = values.stream().map(LuceneAwareDatabaseConnector::prepareWildcardQuery)
+                    values = values.stream().map(NouveauLuceneAwareDatabaseConnector::prepareWildcardQuery)
                             .collect(Collectors.toSet());
                 }
                 filterMap.put(filteredField.getFieldName(), values);
