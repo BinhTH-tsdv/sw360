@@ -2371,12 +2371,42 @@ public class ProjectController implements RepresentationModelProcessor<Repositor
             }
         }
         selectedLicenseObligation.putAll(obligationStatusMapFromReport);
-        RequestStatus requestStatus= projectService.updateLinkedObligations(sw360Project, sw360User, selectedLicenseObligation);
+        RequestStatus requestStatus= projectService.addLinkedObligations(sw360Project, sw360User, selectedLicenseObligation);
         if (requestStatus == RequestStatus.SUCCESS) {
             return new ResponseEntity<>("License Obligation Added Successfully", HttpStatus.CREATED);
         }
         return new ResponseEntity<>("Failed to add/update obligation for project", HttpStatus.NOT_FOUND);
 	}
+
+    @PreAuthorize("hasAuthority('WRITE')")
+    @Operation(
+            summary = "Update License Obligations ",
+            description = "Pass a map of obligations in request body.",
+            tags = {"Projects"}
+    )
+    @RequestMapping(value = PROJECTS_URL + "/{id}/updateLicenseObligation", method = RequestMethod.PATCH)
+    public ResponseEntity<?> patchLicenseObligations(
+            @Parameter(description = "Project ID.")
+            @PathVariable("id") String id,
+            @Parameter(description = "Map of obligation status info.")
+            @RequestBody Map<String, ObligationStatusInfo> requestBodyObligationStatusInfo
+    ) throws TException {
+        final User sw360User = restControllerHelper.getSw360UserFromAuthentication();
+        final Project sw360Project = projectService.getProjectForUserById(id, sw360User);
+        ObligationList obligation = new ObligationList();
+        Map<String, ObligationStatusInfo> obligationStatusMap = Maps.newHashMap();
+        if (CommonUtils.isNotNullEmptyOrWhitespace(sw360Project.getLinkedObligationId())) {
+            obligation = projectService.getObligationData(sw360Project.getLinkedObligationId(), sw360User);
+            obligationStatusMap = CommonUtils.nullToEmptyMap(obligation.getLinkedObligationStatus());
+        }
+        Map<String, ObligationStatusInfo> updatedObligationStatusMap = projectService
+                .compareObligationStatusMap(sw360User, obligationStatusMap, requestBodyObligationStatusInfo);
+        RequestStatus updateObligationStatus = projectService.patchLinkedObligations(sw360User, updatedObligationStatusMap, obligation);
+        if (updateObligationStatus == RequestStatus.SUCCESS) {
+            return new ResponseEntity<>("License Obligation Updated Successfully", HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>("Cannot update License Obligation", HttpStatus.CONFLICT);
+    }
 
     @Operation(
             description = "Get summary and administration page of project tab.",
