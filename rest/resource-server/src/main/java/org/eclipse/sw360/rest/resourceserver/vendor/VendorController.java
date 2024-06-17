@@ -73,17 +73,20 @@ public class VendorController implements RepresentationModelProcessor<Repository
 
         List<EntityModel<Vendor>> vendorResources = new ArrayList<>();
         for (Vendor vendor : vendors) {
+            /*
+            * Return type: vendor
+            * Vendor embeddedVendor = restControllerHelper.convertToEmbeddedVendor(vendor);
+            * EntityModel<Vendor> vendorResource = EntityModel.of(embeddedVendor);
+            * vendorResources.add(vendorResource);
+            */
+
+            /*
+            * Don't return type: vendor
+            */
             Vendor embeddedVendor = restControllerHelper.convertToEmbeddedVendor(vendor);
             HalResource<Vendor> halVendor = new HalResource<>(embeddedVendor);
-
-            Vendor vendorByFullName = vendorService.getVendorByFullName(vendor.getFullname());
-            if(vendorByFullName != null) {
-                Link vendorSelfLink = linkTo(UserController.class)
-                        .slash("api" + VendorController.VENDORS_URL + "/" + vendorByFullName.getId()).withSelfRel();
-                halVendor.add(vendorSelfLink);
-            }
-
             vendorResources.add(halVendor);
+
         }
 
         CollectionModel<EntityModel<Vendor>> resources = CollectionModel.of(vendorResources);
