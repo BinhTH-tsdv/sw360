@@ -68,22 +68,11 @@ public class VendorController implements RepresentationModelProcessor<Repository
     private final RestControllerHelper restControllerHelper;
 
     @GetMapping(value = VENDORS_URL)
-//    public ResponseEntity<EntityModel<Vendor>> getVendors() {
-//        List<Vendor> vendors = vendorService.getVendors();
-//        return new ResponseEntity<>(vendors, HttpStatus.OK);
-//    }
-//    public List<Vendor> getVendors() {
-//        List<Vendor> vendors = vendorService.getVendors();
-//        List<EntityModel<Vendor>> vendorResources = new ArrayList<>();
-//        return vendorService.getVendors();
-//    }
     public ResponseEntity<CollectionModel<EntityModel<Vendor>>> getVendors() throws TException {
         List<Vendor> vendors = vendorService.getVendors();
 
         List<EntityModel<Vendor>> vendorResources = new ArrayList<>();
         for (Vendor vendor : vendors) {
-            //HalResource<Vendor> halVendor = restControllerHelper.addEmbeddedVendor(vendor);
-            //HalResource halVendor = restControllerHelper.addEmbeddedVendor(vendor);
             Vendor embeddedVendor = restControllerHelper.convertToEmbeddedVendor(vendor);
             HalResource<Vendor> halVendor = new HalResource<>(embeddedVendor);
 
@@ -94,48 +83,12 @@ public class VendorController implements RepresentationModelProcessor<Repository
                 halVendor.add(vendorSelfLink);
             }
 
-//            Vendor embeddedVendor = restControllerHelper.convertToEmbeddedVendor(vendor);
-//            EntityModel<Vendor> vendorResource = EntityModel.of(embeddedVendor);
-//            vendorResources.add(vendorResource);
-
-//            Vendor vendorByFullName = Vendor vendor.fullname;
-
-//            if(vendor.getFullname() != null) {
-//                Link vendorSelfLink = linkTo(UserController.class)
-//                        .slash("api" + VendorController.VENDORS_URL + "/" + vendor.getId()).withSelfRel();
-//                halVendor.add(vendorSelfLink);
-//            }
-
             vendorResources.add(halVendor);
         }
 
         CollectionModel<EntityModel<Vendor>> resources = CollectionModel.of(vendorResources);
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
-
-//    public ResponseEntity<CollectionModel<EntityModel<Vendor>>> getVendors(
-//            Pageable pageable,
-//            HttpServletRequest request
-//            ) throws TException, URISyntaxException, PaginationParameterException, ResourceClassNotFoundException {
-//        List<Vendor> vendors = vendorService.getVendors();
-//
-//        PaginationResult<Vendor> paginationResult = restControllerHelper.createPaginationResult(request, pageable, vendors, SW360Constants.TYPE_VENDOR);
-//        List<EntityModel<Vendor>> vendorResources = new ArrayList<>();
-//        for (Vendor v: paginationResult.getResources()) {
-//            Vendor embeddedVendor = restControllerHelper.convertToEmbeddedVendor(v);
-//            vendorResources.add(EntityModel.of(embeddedVendor));
-//        }
-//
-//        CollectionModel<EntityModel<Vendor>> resources;
-//        if (vendors.size() == 0) {
-//            resources = restControllerHelper.emptyPageResource(Vendor.class, paginationResult);
-//        } else {
-//            resources = restControllerHelper.generatePagesResource(paginationResult, vendorResources);
-//        }
-//
-//        HttpStatus status = resources == null ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-//        return new ResponseEntity<>(resources, status);
-//    }
 
     @Override
     public RepositoryLinksResource process(RepositoryLinksResource resource) {
