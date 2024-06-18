@@ -1,6 +1,7 @@
 /* Sw360VendorService */
 /*
- * Copyright Siemens AG, 2017. Part of the SW360 Portal Vendor.
+ * Copyright (C) TOSHIBA CORPORATION, 2024. Part of the SW360 Frontend Project.
+ * Copyright (C) Toshiba Software Development (Vietnam) Co., Ltd., 2024. Part of the SW360 Frontend Project.
  *
   * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,22 +18,12 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransportException;
-import org.eclipse.sw360.datahandler.common.CommonUtils;
-import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestStatus;
-import org.eclipse.sw360.datahandler.thrift.AddDocumentRequestSummary;
-import org.eclipse.sw360.datahandler.thrift.RequestStatus;
-import org.eclipse.sw360.datahandler.thrift.ThriftClients;
-import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
 import org.eclipse.sw360.datahandler.thrift.vendors.VendorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 
 @Component
@@ -41,7 +32,6 @@ import java.util.List;
 public class Sw360VendorService {
     private static final String THRIFT_SERVER_URL = "http://localhost:8080/vendors/thrift" ;
 
-    // Retrieve all vendors
     public List<Vendor> getVendors() {
         try {
             return getThriftVendorClient().getAllVendors();
@@ -50,7 +40,6 @@ public class Sw360VendorService {
         }
     }
 
-    // Retrieve vendor by ID
     public Vendor getVendorById(String vendorId) {
         try {
             return getThriftVendorClient().getByID(vendorId);
@@ -59,7 +48,6 @@ public class Sw360VendorService {
         }
     }
 
-    // Retrieve vendor by full name
     public Vendor getVendorByFullName(String fullName) {
         try {
             for (Vendor vendor : getThriftVendorClient().getAllVendors()) {
@@ -73,7 +61,6 @@ public class Sw360VendorService {
         }
     }
 
-    // Helper method to create and return a Thrift client for the Vendor service
     private VendorService.Iface getThriftVendorClient() throws TTransportException {
         THttpClient thriftClient = new THttpClient(THRIFT_SERVER_URL);
         TProtocol protocol = new TCompactProtocol(thriftClient);
