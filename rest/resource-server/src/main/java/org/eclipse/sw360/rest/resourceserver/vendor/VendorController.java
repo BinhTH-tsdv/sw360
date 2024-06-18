@@ -27,10 +27,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
+import org.eclipse.sw360.datahandler.common.SW360Constants;
+import org.eclipse.sw360.datahandler.resourcelists.PaginationResult;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.sw360.datahandler.resourcelists.ResourceClassNotFoundException ;
+import org.eclipse.sw360.datahandler.resourcelists.PaginationParameterException;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @BasePathAwareController
@@ -47,11 +54,13 @@ public class VendorController implements RepresentationModelProcessor<Repository
     private final RestControllerHelper restControllerHelper;
 
     @GetMapping(value = VENDORS_URL)
-    public ResponseEntity<CollectionModel<EntityModel<Vendor>>> getVendors() throws TException {
+    public ResponseEntity<CollectionModel<EntityModel<Vendor>>> getVendors(
+            Pageable pageable, HttpServletRequest request
+    ) throws TException, ResourceClassNotFoundException, PaginationParameterException, URISyntaxException {
         List<Vendor> vendors = vendorService.getVendors();
-
+        PaginationResult<Vendor> paginationResult = restControllerHelper.createPaginationResult(request, pageable, vendors, SW360Constants.TYPE_VENDOR);
         List<EntityModel<Vendor>> vendorResources = new ArrayList<>();
-        for (Vendor vendor : vendors) {
+        for (Vendor vendor : paginationResult.getResources()) {
             /*
             * Return type: vendor
             * Vendor embeddedVendor = restControllerHelper.convertToEmbeddedVendor(vendor);
@@ -67,9 +76,14 @@ public class VendorController implements RepresentationModelProcessor<Repository
             vendorResources.add(halVendor);
 
         }
-
-        CollectionModel<EntityModel<Vendor>> resources = CollectionModel.of(vendorResources);
-        return new ResponseEntity<>(resources, HttpStatus.OK);
+        CollectionModel<EntityModel<Vendor>> resources;
+        if (vendors.size() == 0) {
+            resources = restControllerHelper.emptyPageResource(Vendor.class, paginationResult);
+        } else {
+            resources = restControllerHelper.generatePagesResource(paginationResult, vendorResources);
+        }
+        HttpStatus status = resources == null ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return new ResponseEntity<>(resources, status);
     }
 
     @Override
