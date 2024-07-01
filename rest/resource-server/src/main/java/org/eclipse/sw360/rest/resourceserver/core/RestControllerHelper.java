@@ -52,6 +52,7 @@ import org.eclipse.sw360.datahandler.thrift.projects.ProjectService;
 import org.eclipse.sw360.datahandler.thrift.projects.ProjectDTO;
 import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorDTO;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.CVEReference;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.Vulnerability;
 import org.eclipse.sw360.datahandler.thrift.vulnerabilities.VulnerabilityApiDTO;
@@ -615,6 +616,17 @@ public class RestControllerHelper<T> {
         return componentToUpdate;
     }
 
+    public Vendor updateVendor(Vendor vendorToUpdate, VendorDTO requestBodyVendor) {
+        Vendor vendor = convertToVendor(requestBodyVendor);
+        for(Vendor._Fields field:Vendor._Fields.values()) {
+            Object fieldValue = vendor.getFieldValue(field);
+            if(fieldValue != null) {
+                vendorToUpdate.setFieldValue(field, fieldValue);
+            }
+        }
+        return vendorToUpdate;
+    }
+
     public Package updatePackage(Package packageToUpdate, Package requestBodyPackage) {
         for (Package._Fields field:Package._Fields.values()) {
             Object fieldValue = requestBodyPackage.getFieldValue(field);
@@ -677,6 +689,17 @@ public class RestControllerHelper<T> {
         component.setBlog(componentDTO.getBlog());
 
         return component;
+    }
+
+    public Vendor convertToVendor(VendorDTO vendorDTO) {
+        Vendor vendor = new Vendor();
+
+        vendor.setId(vendorDTO.getId());
+        vendor.setFullname(vendorDTO.getFullname());
+        vendor.setShortname(vendorDTO.getShortname());
+        vendor.setUrl(vendorDTO.getUrl());
+
+        return vendor;
     }
 
     public Release updateRelease(Release releaseToUpdate, Release requestBodyRelease) {

@@ -1087,12 +1087,12 @@ public class JacksonCustomizations {
         })
         static abstract class VendorMixin extends Vendor {
             @Override
-            @JsonProperty("fullName")
+            @JsonProperty("fullname")
             @Schema(description = "The full name of the vendor")
             abstract public String getFullname();
 
             @Override
-            @JsonProperty("shortName")
+            @JsonProperty("shortname")
             @Schema(description = "The Short Name of the vendor")
             abstract public String getShortname();
         }

@@ -14,8 +14,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.thrift.TException;
+import org.eclipse.sw360.datahandler.thrift.users.User;
 import org.eclipse.sw360.datahandler.thrift.vendors.Vendor;
+import org.eclipse.sw360.datahandler.thrift.vendors.VendorDTO;
 import org.eclipse.sw360.rest.resourceserver.core.HalResource;
+
 import org.eclipse.sw360.rest.resourceserver.core.RestControllerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
@@ -30,14 +33,17 @@ import org.springframework.web.bind.annotation.*;
 import org.eclipse.sw360.datahandler.common.SW360Constants;
 import org.eclipse.sw360.datahandler.resourcelists.PaginationResult;
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.data.domain.Pageable;
 
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.eclipse.sw360.datahandler.resourcelists.ResourceClassNotFoundException ;
 import org.eclipse.sw360.datahandler.resourcelists.PaginationParameterException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @BasePathAwareController
@@ -84,6 +90,51 @@ public class VendorController implements RepresentationModelProcessor<Repository
         }
         HttpStatus status = resources == null ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return new ResponseEntity<>(resources, status);
+    }
+
+    @PostMapping(value = VENDORS_URL)
+    public ResponseEntity<?> createVendor(
+            @RequestBody Vendor vendor
+    ) {
+        vendor = vendorService.createVendor(vendor);
+        HalResource<Vendor> halResource = new HalResource<>(vendor);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(vendor.getId()).toUri();
+
+        return ResponseEntity.created(location).body(halResource);
+    }
+
+    @GetMapping(value = VENDORS_URL + "/{id}")
+    public ResponseEntity<EntityModel<Vendor>> getVendor(
+            @PathVariable("id") String id
+    ) {
+        Vendor vendor = vendorService.getVendorById(id);
+        HalResource<Vendor> halResource = new HalResource<>(vendor);
+        return new ResponseEntity<>(halResource, HttpStatus.OK);
+    }
+
+    @PatchMapping(value = VENDORS_URL + "/{id}")
+    public ResponseEntity<EntityModel<Vendor>> patchVendor(
+            @PathVariable("id") String id,
+            @RequestBody VendorDTO updateVendorDto
+    ) throws TException {
+        User user = restControllerHelper.getSw360UserFromAuthentication();
+        Vendor sw360Vendor = vendorService.getVendorById(id);
+        sw360Vendor = this.restControllerHelper.updateVendor(sw360Vendor, updateVendorDto);
+        vendorService.updateVendor(sw360Vendor, user);
+        HalResource<Vendor> halResource = new HalResource<>(sw360Vendor);
+        return new ResponseEntity<>(halResource, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = VENDORS_URL + "/{id:.+}")
+    public ResponseEntity deleteVendor(
+            @PathVariable("id") String id
+    ) throws TException {
+        User sw360User = restControllerHelper.getSw360UserFromAuthentication();
+        vendorService.deleteVendor(id, sw360User);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override

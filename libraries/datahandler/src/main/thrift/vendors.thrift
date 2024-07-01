@@ -30,6 +30,18 @@ struct Vendor {
     200: optional map<RequestedAction, bool> permissions,
 }
 
+struct VendorDTO {
+    1: optional string id,
+    2: optional string revision,
+    3: optional string type = "vendor",
+    4: required string shortname,
+    5: required string fullname,
+    6: required string url
+
+    200: optional map<RequestedAction, bool> permissions,
+}
+
+
 service VendorService {
 
     /**
